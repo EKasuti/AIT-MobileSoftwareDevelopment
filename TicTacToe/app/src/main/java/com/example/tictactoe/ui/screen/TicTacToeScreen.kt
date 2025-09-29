@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -25,13 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tictactoe.R
@@ -105,37 +98,10 @@ fun TicTacToeBoard(
         canvasSize = this.size
         val canvasWidth = size.width.toInt()
         val canvasHeight = size.height.toInt()
-
-
+        
         // Draw the grid
         val gridSize = size.minDimension
         val thirdSize = gridSize / 3
-
-        drawImage(
-            monkeyImage,
-            srcOffset = IntOffset(0,0),
-            srcSize = IntSize(monkeyImage.width, monkeyImage.height),
-            dstOffset = IntOffset(2*thirdSize.toInt(), thirdSize.toInt()),
-            dstSize = IntSize(thirdSize.toInt(), thirdSize.toInt())
-        )
-
-        val textLayoutResult: TextLayoutResult =
-            textMeasurer.measure(
-                text = "3",
-                style = TextStyle(fontSize = thirdSize.toSp(),
-                    fontWeight = FontWeight.Bold)
-            )
-        val textSize = textLayoutResult.size
-
-        drawText(
-            textLayoutResult = textLayoutResult,
-            topLeft = Offset(
-                x  = 3*(thirdSize/2) - textSize.width/2,
-                y = 3*(thirdSize/2) - textSize.height/2
-            ),
-        )
-
-
 
         for (i in 1..2) {
             drawLine(
@@ -163,7 +129,7 @@ fun TicTacToeBoard(
                     val centerY = row * thirdSize + thirdSize / 2
                     if (player == Player.X) {
                         drawLine(
-                            color = Color.Black,
+                            color = Color.Blue,
                             strokeWidth = 8f,
                             pathEffect = PathEffect.cornerPathEffect(4f),
                             start = androidx.compose.ui.geometry.Offset(
@@ -176,7 +142,7 @@ fun TicTacToeBoard(
                             ),
                         )
                         drawLine(
-                            color = Color.Black,
+                            color = Color.Blue,
                             strokeWidth = 8f,
                             pathEffect = PathEffect.cornerPathEffect(4f),
                             start = androidx.compose.ui.geometry.Offset(
@@ -190,7 +156,7 @@ fun TicTacToeBoard(
                         )
                     } else {
                         drawCircle(
-                            color = Color.Black,
+                            color = Color.Red,
                             style = Stroke(width = 8f),
                             center = androidx.compose.ui.geometry.Offset(centerX, centerY),
                             radius = thirdSize / 4,
@@ -199,7 +165,5 @@ fun TicTacToeBoard(
                 }
             }
         }
-
-
     }
 }
