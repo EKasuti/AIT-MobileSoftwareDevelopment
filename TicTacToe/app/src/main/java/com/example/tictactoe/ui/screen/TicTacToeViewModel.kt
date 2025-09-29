@@ -27,6 +27,8 @@ class TicTactToeViewModel : ViewModel() {
 
     fun setNewBoard(size: Int) {
         board = Array(size){ Array(size) {null as Player?} }
+        winner = null
+        currentPlayer = Player.X
     }
 
     fun onCellClicked(cell: BoardCell) {
@@ -34,6 +36,18 @@ class TicTactToeViewModel : ViewModel() {
         if (board[cell.row][cell.col] != null || winner != null) return
 
         board[cell.row][cell.col] = currentPlayer
+
+        // after every move we check if there is a winner
+        if (checkWinner(currentPlayer)) {
+            winner = currentPlayer
+            return
+        }
+
+        if (board.all { row -> row.all { it != null } }) {
+            winner = null
+            return
+        }
+
 
         // we do not need this because currentPlayer is also a state and it is
         // used in TicTacToeScreen so it gets recomposed when the currentPlayer is changed
@@ -47,4 +61,25 @@ class TicTactToeViewModel : ViewModel() {
             if (currentPlayer == Player.X) Player.O else Player.X
     }
 
+    private fun checkWinner(player: Player): Boolean {
+        val size = board.size
+
+        // Rows
+        for (row in 0 until size) {
+            if ((0 until size).all { col -> board[row][col] == player }) return true
+        }
+
+        // Cols
+        for (col in 0 until size) {
+            if ((0 until size).all { row -> board[row][col] == player }) return true
+        }
+
+        // Diagonal
+        if ((0 until size).all { i -> board[i][i] == player }) return true
+
+        // Anti-diagonal
+        if ((0 until size).all { i -> board[i][size - 1 - i] == player }) return true
+
+        return false
+    }
 }

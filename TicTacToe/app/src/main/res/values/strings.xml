@@ -3,4 +3,9 @@
     <string name="btn_reset">Restart</string>
     <string name="text_welcome">Welcome in TicTacToe</string>
     <string name="next_player_text">Next player is: %1$s</string>
+    <string name="confetti_icon">🎉</string>
+    <string name="winner_text">Winner: %1$s</string>
+    <string name="tap_for_hint">Tap to get a hint</string>
+    <string name="bulb_icon">💡</string>
+    <string name="tip_text"> Tip: Try to control the center for the best chance to win!</string>
 </resources>

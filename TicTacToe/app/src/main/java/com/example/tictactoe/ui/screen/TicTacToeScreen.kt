@@ -3,10 +3,17 @@ package hu.bme.ait.tictactoe.ui.screen
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,8 +32,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.wajahatkarim.flippable.rememberFlipController
+import com.wajahatkarim.flippable.Flippable
 import com.example.tictactoe.R
 
 @Composable
@@ -35,7 +45,7 @@ fun TicTacToeScreen(
     ticTactToeViewModel: TicTactToeViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
+    
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -44,20 +54,19 @@ fun TicTacToeScreen(
     ) {
         Text(context.getString(R.string.text_welcome), fontSize = 30.sp)
 
-        Text(context.getString(R.string.next_player_text,
+        WinnerCard(winner = ticTactToeViewModel.winner)
+
+        if (ticTactToeViewModel.winner == null){
+            Text(context.getString(R.string.next_player_text,
             ticTactToeViewModel.currentPlayer),
             fontSize = 28.sp)
+        }
 
-        /*TicTacToeBoard(ticTactToeViewModel.board,
+        TicTacToeBoard(ticTactToeViewModel.board,
             {
                 ticTactToeViewModel.onCellClicked(it)
             }
-        )*/
-
-        TicTacToeBoard(ticTactToeViewModel.board) {
-            ticTactToeViewModel.onCellClicked(it)
-        }
-
+        )
 
         Button(onClick = {
             ticTactToeViewModel.setNewBoard(3)
@@ -98,7 +107,7 @@ fun TicTacToeBoard(
         canvasSize = this.size
         val canvasWidth = size.width.toInt()
         val canvasHeight = size.height.toInt()
-        
+
         // Draw the grid
         val gridSize = size.minDimension
         val thirdSize = gridSize / 3
@@ -166,4 +175,83 @@ fun TicTacToeBoard(
             }
         }
     }
+}
+
+@Composable
+fun WinnerCard(
+    winner: Player?,
+    modifier: Modifier = Modifier
+) {
+    if (winner == null) return
+
+    val flipController = rememberFlipController()
+    val context = LocalContext.current
+
+    Flippable(
+        frontSide = {
+            Card(
+                modifier = modifier
+                    .fillMaxWidth(0.9f)
+                    .height(180.dp),
+                elevation = CardDefaults.cardElevation(12.dp),
+                colors = CardDefaults.cardColors(Color(0xFFFFF9C4)),
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = context.getString(R.string.confetti_icon),
+                            fontSize = 40.sp
+                        )
+                        Text(
+                            text = context.getString(R.string.winner_text, winner.name),
+                            fontSize = 28.sp,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Text(
+                            text = context.getString(R.string.tap_for_hint),
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        },
+        backSide = {
+            Card(
+                modifier = modifier
+                    .fillMaxWidth(0.9f)
+                    .height(180.dp),
+                elevation = CardDefaults.cardElevation(12.dp),
+                colors = CardDefaults.cardColors(Color(0xFF549DDC)),
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = context.getString(R.string.bulb_icon),
+                            fontSize = 32.sp
+                        )
+                        Text(
+                            text = context.getString(R.string.tip_text),
+                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        flipController = flipController
+    )
 }
