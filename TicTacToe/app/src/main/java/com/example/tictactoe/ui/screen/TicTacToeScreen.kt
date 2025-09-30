@@ -1,10 +1,12 @@
 package hu.bme.ait.tictactoe.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -45,7 +48,7 @@ fun TicTacToeScreen(
     ticTactToeViewModel: TicTactToeViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    
+
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -54,19 +57,33 @@ fun TicTacToeScreen(
     ) {
         Text(context.getString(R.string.text_welcome), fontSize = 30.sp)
 
+        ScoreBoard(
+            xWins = ticTactToeViewModel.xWins,
+            oWins = ticTactToeViewModel.oWins
+        )
+
         WinnerCard(winner = ticTactToeViewModel.winner)
 
         if (ticTactToeViewModel.winner == null){
-            Text(context.getString(R.string.next_player_text,
-            ticTactToeViewModel.currentPlayer),
-            fontSize = 28.sp)
+            Card(
+                modifier = modifier.shadow(8.dp, shape = MaterialTheme.shapes.medium),
+                border = BorderStroke(2.dp, Color(context.getColor(R.color.borderStrokeColor))),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (ticTactToeViewModel.currentPlayer == Player.X)
+                        Color(0xFFE3F2FD) else Color(0xFFFFEBEE)
+                )
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                    text = context.getString(R.string.next_player_text, ticTactToeViewModel.currentPlayer),
+                    fontSize = 28.sp
+                )
+            }
         }
 
-        TicTacToeBoard(ticTactToeViewModel.board,
-            {
-                ticTactToeViewModel.onCellClicked(it)
-            }
-        )
+        TicTacToeBoard(ticTactToeViewModel.board) {
+            ticTactToeViewModel.onCellClicked(it)
+        }
 
         Button(onClick = {
             ticTactToeViewModel.setNewBoard(3)
@@ -254,4 +271,42 @@ fun WinnerCard(
         },
         flipController = flipController
     )
+}
+
+@Composable
+fun ScoreBoard(
+    xWins: Int,
+    oWins: Int,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth(0.9f)
+            .padding(16.dp)
+            .shadow(8.dp, shape = MaterialTheme.shapes.medium),
+        elevation = CardDefaults.cardElevation(6.dp),
+        border = BorderStroke(2.dp, Color(context.getColor(R.color.borderStrokeColor)))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                text = context.getString(R.string.player1, xWins),
+                fontSize = 24.sp,
+                color = Color(0xFF1976D2),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = context.getString(R.string.player2, oWins),
+                fontSize = 24.sp,
+                color = Color(0xFFD32F2F),
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
+    }
 }

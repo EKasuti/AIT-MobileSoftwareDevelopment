@@ -21,6 +21,12 @@ class TicTactToeViewModel : ViewModel() {
     var winner by mutableStateOf<Player?>(null)
         private set
 
+    var xWins by mutableStateOf(0)
+        private set
+
+    var oWins by mutableStateOf(0)
+        private set
+
     init {
         //board[1][1] = Player.X
     }
@@ -40,6 +46,12 @@ class TicTactToeViewModel : ViewModel() {
         // after every move we check if there is a winner
         if (checkWinner(currentPlayer)) {
             winner = currentPlayer
+
+            if (currentPlayer == Player.X) {
+                xWins++
+            } else {
+                oWins++
+            }
             return
         }
 

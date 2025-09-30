@@ -8,4 +8,6 @@
     <string name="tap_for_hint">Tap to get a hint</string>
     <string name="bulb_icon">💡</string>
     <string name="tip_text"> Tip: Try to control the center for the best chance to win!</string>
+    <string name="player1">Player X: %1$d</string>
+    <string name="player2">Player O: %1$d</string>
 </resources>
