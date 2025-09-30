@@ -27,6 +27,9 @@ class TicTactToeViewModel : ViewModel() {
     var oWins by mutableStateOf(0)
         private set
 
+    var isDraw by mutableStateOf(false)
+        private set
+
     init {
         //board[1][1] = Player.X
     }
@@ -34,6 +37,7 @@ class TicTactToeViewModel : ViewModel() {
     fun setNewBoard(size: Int) {
         board = Array(size){ Array(size) {null as Player?} }
         winner = null
+        isDraw = false
         currentPlayer = Player.X
     }
 
@@ -56,7 +60,7 @@ class TicTactToeViewModel : ViewModel() {
         }
 
         if (board.all { row -> row.all { it != null } }) {
-            winner = null
+            isDraw = true
             return
         }
 

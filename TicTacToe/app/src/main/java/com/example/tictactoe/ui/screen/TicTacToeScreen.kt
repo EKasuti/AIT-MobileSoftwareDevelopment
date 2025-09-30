@@ -64,7 +64,30 @@ fun TicTacToeScreen(
 
         WinnerCard(winner = ticTactToeViewModel.winner)
 
-        if (ticTactToeViewModel.winner == null){
+        if (ticTactToeViewModel.isDraw) {
+            Card(
+                modifier = modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(horizontal = 16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(Color(0xFFFFF9C4))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = context.getString(R.string.is_draw),
+                        fontSize = 24.sp,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+            }
+        }
+
+        if (ticTactToeViewModel.winner == null && !ticTactToeViewModel.isDraw){
             Card(
                 modifier = modifier.shadow(8.dp, shape = MaterialTheme.shapes.medium),
                 border = BorderStroke(2.dp, Color(context.getColor(R.color.borderStrokeColor))),
