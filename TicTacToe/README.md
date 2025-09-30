@@ -8,19 +8,19 @@
 
 ## Screenshots
 Initial setup
-- ![image1](TicTacToe/app/src/main/res/drawable/screenshots/1.png)
+- ![image1](app/src/main/res/drawable/screenshots/1.png)
 
 Player 1 (X) makes a move
-- ![image2](TicTacToe/app/src/main/res/drawable/screenshots/2.png)
+- ![image2](app/src/main/res/drawable/screenshots/2.png)
 
 Player 1 (X) wins the game
-- ![image3](TicTacToe/app/src/main/res/drawable/screenshots/3.png)
+- ![image3](app/src/main/res/drawable/screenshots/3.png)
 
 Flipping the card to get a hint
-- ![image4](TicTacToe/app/src/main/res/drawable/screenshots/4.png)
+- ![image4](app/src/main/res/drawable/screenshots/4.png)
 
 Player 2 (O) wins the game
-- ![image5](TicTacToe/app/src/main/res/drawable/screenshots/5.png)
+- ![image5](app/src/main/res/drawable/screenshots/5.png)
 
 
 ## Installation
