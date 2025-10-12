@@ -54,11 +54,15 @@ fun NavGraph(modifier: Modifier) {
         entryProvider  = entryProvider {
             entry<HomeScreenRoute> {
                 HomeScreen(
-                    onStartGame = { backStack.add(GameScreenRoute) }
+                    onStartGame = { level ->
+                        backStack.add(GameScreenRoute(level))
+                    }
                 )
             }
-            entry<GameScreenRoute> {
-                GameScreen()
+            entry<GameScreenRoute> {route ->
+                GameScreen(
+                    selectedLevel = route.level
+                )
             }
         }
     )
