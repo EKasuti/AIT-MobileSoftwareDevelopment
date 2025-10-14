@@ -1,3 +1,5 @@
+package com.example.minesweeper.navigation
+
 import androidx.navigation3.runtime.NavKey
 import com.example.minesweeper.screens.Level
 import kotlinx.serialization.Serializable

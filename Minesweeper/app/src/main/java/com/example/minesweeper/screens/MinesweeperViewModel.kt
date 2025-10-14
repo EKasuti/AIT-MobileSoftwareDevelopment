@@ -163,6 +163,7 @@ class MinesweeperViewModel : ViewModel() {
         if(cell.isBomb) {
             isGameOver = true
             isRevealedManually = false
+            stopTimer()
             revealAllCells()
             return
         }
@@ -176,6 +177,7 @@ class MinesweeperViewModel : ViewModel() {
         // also check if all safe cells are open
         if (checkWin()) {
             isGameWon = true
+            stopTimer()
             revealAllCells()
         }
 
@@ -192,6 +194,7 @@ class MinesweeperViewModel : ViewModel() {
         if (isGameOver || isGameWon) return
         isRevealedManually = true
         isGameOver = true
+        stopTimer()
         revealAllCells()
         board = board.copyOf()
     }

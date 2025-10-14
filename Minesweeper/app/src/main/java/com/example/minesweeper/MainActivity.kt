@@ -1,7 +1,7 @@
 package com.example.minesweeper
 
-import GameScreenRoute
-import HomeScreenRoute
+import com.example.minesweeper.navigation.GameScreenRoute
+import com.example.minesweeper.navigation.HomeScreenRoute
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
