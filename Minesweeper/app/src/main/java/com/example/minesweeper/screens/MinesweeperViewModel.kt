@@ -11,7 +11,7 @@ import kotlin.random.Random
 enum class Level(val rows: Int, val cols: Int, val bombs: Int) {
     EASY(5, 5, 3),
     MEDIUM(8, 5, 6),
-    HARD(12, 5, 10)
+    HARD(10, 6, 10)
 }
 
 
@@ -44,9 +44,21 @@ class MinesweeperViewModel : ViewModel() {
     var currentLevel by mutableStateOf<Level?>(null)
         private set
 
+    var isGameOver by mutableStateOf(false)
+        private set
+
+    var isGameWon by mutableStateOf(false)
+        private set
+
+    var isRevealedManually by mutableStateOf(false)
+        private set
+
     fun setNewBoard(level: Level) {
         currentLevel = level
         bombCount = level.bombs
+        isGameOver = false
+        isGameWon = false
+        isRevealedManually = false
 
         val newBoard = Array(level.rows) {
             Array(level.cols) {
@@ -98,19 +110,94 @@ class MinesweeperViewModel : ViewModel() {
     }
 
     fun toggleFlag(row: Int, col: Int) {
+        if (isGameOver) return
         val cell = board[row][col]
+        if (cell.state == CellState.OPENED) return
+
         val newState = when (cell.state) {
             CellState.UNOPENED -> CellState.FLAGGED
             CellState.FLAGGED -> CellState.UNOPENED
-            CellState.OPENED -> CellState.FLAGGED
+            else -> cell.state
         }
         board[row][col] = cell.copy(state = newState)
         board = board.copyOf()
     }
 
     fun revealCell(row: Int, col: Int) {
+        if (isGameOver || isGameWon) return
         val cell = board[row][col]
+
+        // don't reveal flagged cells
+        if (cell.state == CellState.FLAGGED || cell.state == CellState.OPENED) return
+
+        if(cell.isBomb) {
+            isGameOver = true
+            isRevealedManually = false
+            revealAllCells()
+            return
+        }
         board[row][col] = cell.copy(state = CellState.OPENED)
+
+        // if cell is empty (has no adj bombs) we reveal neighbors recursively
+        if (cell.adjacentBombs == 0) {
+            revealNearbyCells(row, col)
+        }
+
+        // also check if all safe cells are open
+        if (checkWin()) {
+            isGameWon = true
+            revealAllCells()
+        }
+
         board = board.copyOf()
+    }
+
+    private fun revealAllCells() {
+        board = board.map { row ->
+            row.map { it.copy(state = CellState.OPENED) }.toTypedArray()
+        }.toTypedArray()
+    }
+
+    fun revealAll() {
+        if (isGameOver || isGameWon) return
+        isRevealedManually = true
+        isGameOver = true
+        revealAllCells()
+        board = board.copyOf()
+    }
+
+    private fun checkWin(): Boolean {
+        for (r in board) {
+            for (cell in r) {
+                if (!cell.isBomb && cell.state != CellState.OPENED) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    private fun revealNearbyCells(row: Int, col: Int) {
+        val rows = board.size
+        val cols = board[0].size
+
+        for (i in -1..1) {
+            for (j in -1..1) {
+                if (i == 0 && j == 0) continue
+                val newRow = row + i
+                val newCol = col + j
+
+                if (newRow in 0 until rows && newCol in 0 until cols) {
+                    val neighbor = board[newRow][newCol]
+                    if (!neighbor.isBomb && neighbor.state == CellState.UNOPENED) {
+                        board[newRow][newCol] = neighbor.copy(state = CellState.OPENED)
+                        // recursively reveal if also empty
+                        if (neighbor.adjacentBombs == 0) {
+                            revealNearbyCells(newRow, newCol)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

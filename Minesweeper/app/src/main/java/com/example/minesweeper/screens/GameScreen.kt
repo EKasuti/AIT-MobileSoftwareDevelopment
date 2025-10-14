@@ -23,18 +23,17 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import android.graphics.Paint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.geometry.Offset
@@ -51,6 +50,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,31 +81,51 @@ fun GameScreen(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top app bar - back to home screen and restart button
-        TopAppBar(
-            title = {
-                Text(stringResource(R.string.app_name))
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor =
-                    MaterialTheme.colorScheme.secondaryContainer
-            ),
-            navigationIcon = {
-                IconButton(onClick = {  }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                }
-            },
-            actions = {
-                IconButton(onClick = {
-                    // we restart the game
+
+        // Top bar (had to replace top bar cause of height issue)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .background(colorResource(R.color.dark_green)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Back button
+            IconButton( onClick = { }, modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            // Title
+            Text(
+                text = stringResource(R.string.app_name),
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            // Refresh button
+            IconButton(
+                onClick = {
                     minesweeperViewModel.setNewBoard(selectedLevel)
                     elapsedTime = 0
                     flagMode = false
-                }) {
-                    Icon(Icons.Filled.Refresh, contentDescription = "Restart game")
-                }
+                },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = stringResource(R.string.restart_game),
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
             }
-        )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -114,10 +134,39 @@ fun GameScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
-            Text("💣 Bombs: ${minesweeperViewModel.bombCount}")
-            Text("⏱️ Time: ${elapsedTime}s")
+            Text(stringResource(R.string.bombs_count, minesweeperViewModel.bombCount))
+            Text(stringResource(R.string.time_counter, elapsedTime))
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Game over message
+        if (minesweeperViewModel.isGameOver && !minesweeperViewModel.isGameWon) {
+            Spacer(modifier = Modifier.height(8.dp))
+            if (minesweeperViewModel.isRevealedManually) {
+                Text(
+                    text = stringResource(R.string.hard_reveal_message),
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.game_over_message),
+                    color = Color.Red,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+
+        // Game won message
+        if (minesweeperViewModel.isGameWon) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.game_won_message),
+                color = Color.Green,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -133,10 +182,35 @@ fun GameScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // flag mode toggle button
-        Button(onClick = { flagMode = !flagMode }) {
-            Text(if (flagMode) "Flag Mode: ON" else "Flag Mode: OFF")
+
+        // Reveal and flag buttons
+        if (!minesweeperViewModel.isGameOver && !minesweeperViewModel.isGameWon) {
+            // Reveal and flag buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = { flagMode = !flagMode }) {
+                    Text(if (flagMode) stringResource(R.string.flag_mode_on) else stringResource(R.string.flag_mode_off))
+                }
+
+                Button(onClick = { minesweeperViewModel.revealAll() }) {
+                    Text(stringResource(R.string.reveal_all))
+                }
+            }
+        } else {
+            // Restart button when game ends
+            Button(
+                onClick = {
+                    minesweeperViewModel.setNewBoard(selectedLevel)
+                    elapsedTime = 0
+                    flagMode = false
+                }
+            ) {
+                Text(stringResource(R.string.restart_game))
+            }
         }
+
     }
 }
 
@@ -188,10 +262,12 @@ fun MineSweeperBoard(
                 val cellSize = Size(cellWidth, cellHeight)
 
                 drawRect(
-                    color = when {
-                        cell.state == CellState.OPENED && cell.isBomb -> Color.Red
-                        cell.state == CellState.FLAGGED -> Color.Yellow
-                        else -> Color.White
+                    color = when (cell.state) {
+                        CellState.OPENED -> {
+                            if (cell.isBomb) Color.Red else Color.White // opened cell color
+                        }
+                        CellState.FLAGGED -> Color.Yellow
+                        CellState.UNOPENED -> Color.LightGray // unopened cell color
                     },
                     topLeft = cellOffset,
                     size = cellSize
@@ -205,10 +281,12 @@ fun MineSweeperBoard(
                 )
 
 
-                if (cell.isBomb) {
-                    drawBomb(this, bombImage, startX, startY, cellWidth, cellHeight)
-                } else if (cell.adjacentBombs > 0) {
-                    drawNumber(this, startX, startY, cellWidth, cellHeight, cell.adjacentBombs)
+                if (cell.state == CellState.OPENED) {
+                    if (cell.isBomb) {
+                        drawBomb(this, bombImage, startX, startY, cellWidth, cellHeight)
+                    } else if (cell.adjacentBombs > 0) {
+                        drawNumber(this, startX, startY, cellWidth, cellHeight, cell.adjacentBombs)
+                    }
                 }
 
                 // Draw flag on top if flagged
