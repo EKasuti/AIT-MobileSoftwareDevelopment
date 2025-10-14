@@ -63,19 +63,12 @@ fun GameScreen(
 ) {
 
     var flagMode by rememberSaveable { mutableStateOf(false)}
-    var elapsedTime by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
     // create a new board when level changes
     LaunchedEffect(selectedLevel) {
-        minesweeperViewModel.setNewBoard(selectedLevel)
-    }
-
-    // start timer when board changes / game restarts
-    LaunchedEffect(minesweeperViewModel.board) {
-        while (true) {
-            delay(1000)
-            elapsedTime++
+        if (minesweeperViewModel.currentLevel == null) {
+            minesweeperViewModel.setNewBoard(selectedLevel)
         }
     }
 
@@ -115,7 +108,6 @@ fun GameScreen(
             IconButton(
                 onClick = {
                     minesweeperViewModel.setNewBoard(selectedLevel)
-                    elapsedTime = 0
                     flagMode = false
                 },
                 modifier = Modifier.size(40.dp)
@@ -137,7 +129,7 @@ fun GameScreen(
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             Text(stringResource(R.string.bombs_count, minesweeperViewModel.bombCount))
-            Text(stringResource(R.string.time_counter, elapsedTime))
+            Text(stringResource(R.string.time_counter, minesweeperViewModel.elapsedTime))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -205,7 +197,6 @@ fun GameScreen(
             Button(
                 onClick = {
                     minesweeperViewModel.setNewBoard(selectedLevel)
-                    elapsedTime = 0
                     flagMode = false
                 }
             ) {

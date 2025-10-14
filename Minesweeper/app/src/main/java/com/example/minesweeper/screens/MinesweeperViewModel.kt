@@ -5,9 +5,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
 // Game levels
+@Serializable
 enum class Level(val rows: Int, val cols: Int, val bombs: Int) {
     EASY(5, 5, 3),
     MEDIUM(8, 5, 6),
@@ -53,12 +59,19 @@ class MinesweeperViewModel : ViewModel() {
     var isRevealedManually by mutableStateOf(false)
         private set
 
+    var elapsedTime by mutableIntStateOf(0)
+        private set
+
+    private var timerJob: Job? = null
+
     fun setNewBoard(level: Level) {
         currentLevel = level
         bombCount = level.bombs
         isGameOver = false
         isGameWon = false
         isRevealedManually = false
+
+        startTimer()
 
         val newBoard = Array(level.rows) {
             Array(level.cols) {
@@ -87,6 +100,23 @@ class MinesweeperViewModel : ViewModel() {
 
         board = newBoard
     }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        elapsedTime = 0
+
+        timerJob = viewModelScope.launch {
+            while (!isGameOver && !isGameWon) {
+                delay(1000)
+                elapsedTime++
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+    }
+
 
     private fun countAdjacentBombs(
         board: Array<Array<Cell>>,

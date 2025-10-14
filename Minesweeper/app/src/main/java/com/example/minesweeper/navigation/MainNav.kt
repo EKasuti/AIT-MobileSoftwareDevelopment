@@ -5,4 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 object HomeScreenRoute : NavKey
 
+@Serializable
 data class GameScreenRoute(val level: Level): NavKey
