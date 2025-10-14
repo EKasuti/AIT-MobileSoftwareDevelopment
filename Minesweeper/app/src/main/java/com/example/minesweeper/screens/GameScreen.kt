@@ -59,10 +59,12 @@ fun GameScreen(
     modifier: Modifier = Modifier,
     minesweeperViewModel: MinesweeperViewModel = viewModel(),
     selectedLevel: Level,
+    onBack: () -> Unit = {}
 ) {
 
     var flagMode by rememberSaveable { mutableStateOf(false)}
     var elapsedTime by remember { mutableIntStateOf(0) }
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // create a new board when level changes
     LaunchedEffect(selectedLevel) {
@@ -92,11 +94,11 @@ fun GameScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Back button
-            IconButton( onClick = { }, modifier = Modifier.size(40.dp)
+            IconButton( onClick = { showExitDialog = true }, modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White,
                     modifier = Modifier.size(22.dp)
                 )
@@ -212,6 +214,28 @@ fun GameScreen(
         }
 
     }
+
+    if (showExitDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            confirmButton = {
+                Button(onClick = {
+                    showExitDialog = false
+                    onBack()
+                }) {
+                    Text(stringResource(R.string.yes_exit))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showExitDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            title = { Text(stringResource(R.string.quit_game)) },
+            text = { Text(stringResource(R.string.confirm_exit_message)) }
+        )
+    }
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

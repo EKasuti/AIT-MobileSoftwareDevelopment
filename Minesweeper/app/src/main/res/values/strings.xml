@@ -12,4 +12,9 @@
     <string name="restart_game">Restart Game</string>
     <string name="bombs_count">💣 Bombs: %1$s</string>
     <string name="time_counter">⏱️ Time: %1$ss</string>
+    <string name="back">Back</string>
+    <string name="yes_exit">Yes, Exit</string>
+    <string name="cancel">Cancel</string>
+    <string name="quit_game">Quit Game?</string>
+    <string name="confirm_exit_message">Your current game will be lost. Are you sure you want to go back?</string>
 </resources>

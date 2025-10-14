@@ -61,7 +61,8 @@ fun NavGraph(modifier: Modifier) {
             }
             entry<GameScreenRoute> {route ->
                 GameScreen(
-                    selectedLevel = route.level
+                    selectedLevel = route.level,
+                    onBack = { backStack.removeLastOrNull() }
                 )
             }
         }
