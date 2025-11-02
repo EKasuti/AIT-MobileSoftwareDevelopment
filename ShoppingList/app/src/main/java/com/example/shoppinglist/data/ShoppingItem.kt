@@ -19,11 +19,9 @@ enum class CategoryList {
         return if (this == FOOD){
             R.drawable.food
         } else if (this == ELECTRONIC){
-            // TODO: Get electronics image
-            R.drawable.food
+            R.drawable.electronics
         } else if (this == BOOK){
-            // TODO: get food image
-            R.drawable.food
+            R.drawable.books
         }else {
             // TODO: Default image
             R.drawable.food

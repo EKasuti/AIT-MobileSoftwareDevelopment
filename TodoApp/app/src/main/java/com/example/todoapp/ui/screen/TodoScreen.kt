@@ -202,7 +202,7 @@ fun TodoCard(
                         )
                     }
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.35f))
+                Spacer(modifier = Modifier.fillMaxSize(0.5f))
                 Checkbox(
                     checked = todoItem.isDone,
                     onCheckedChange = { checkboxState ->
