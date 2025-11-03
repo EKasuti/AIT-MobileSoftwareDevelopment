@@ -48,6 +48,16 @@ class ShoppingListViewModel: ViewModel() {
         )
     }
 
+    fun addShoppingListItem(shoppingItem: ShoppingItem) {
+        _shoppingList.add(shoppingItem)
+    }
+
+    fun updateShoppingListItem(originalShoppingItem: ShoppingItem, newShoppingItem: ShoppingItem) {
+        val index = _shoppingList.indexOf(originalShoppingItem)
+        _shoppingList[index] = newShoppingItem
+    }
+
+
     fun changeShoppingItemState(shoppingItem: ShoppingItem, value: Boolean){
         val index = _shoppingList.indexOf(shoppingItem)
 

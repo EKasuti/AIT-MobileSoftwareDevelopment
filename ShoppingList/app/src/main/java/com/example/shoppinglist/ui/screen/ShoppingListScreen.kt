@@ -3,6 +3,7 @@ package com.example.shoppinglist.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -34,10 +36,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,15 +56,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.shoppinglist.R
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen (
     shoppingListViewModel: ShoppingListViewModel = viewModel()
 ) {
+    var shoppingItemEdit: ShoppingItem ? by rememberSaveable { mutableStateOf(null) }
+    var showShoppingListDialog by rememberSaveable { mutableStateOf(false) }
+
     Column (modifier = Modifier.fillMaxWidth()) {
         TopAppBar(
             title = {
@@ -81,12 +97,23 @@ fun ShoppingListScreen (
                     Icon(Icons.Filled.Delete, null)
                 }
                 IconButton(onClick = {
-                    // TODO: Module to add an item
+                    showShoppingListDialog = true
                 }) {
                     Icon(Icons.Filled.AddCircle, null)
                 }
             }
         )
+
+        if (showShoppingListDialog) {
+            ShoppingListDialog(
+                shoppingListViewModel,
+                shoppingItemEdit,
+                onCancel = {
+                    showShoppingListDialog = false
+                    shoppingItemEdit = null
+                }
+            )
+        }
 
         if (shoppingListViewModel.getAllShoppingItems().isEmpty()){
             Box(
@@ -136,15 +163,105 @@ fun ShoppingListScreen (
                     items(shoppingListViewModel.getAllShoppingItems()) { shoppingItem ->
                         ShoppingCard(
                             shoppingItem,
-                            onShoppingItemChecked = { shoppingItem, checked ->
+                            onItemChecked = { shoppingItem, checked ->
                                 shoppingListViewModel.changeShoppingItemState(shoppingItem, checked)
                             },
                             onItemDelete = { shoppingItem -> shoppingListViewModel.removeShoppingItem(shoppingItem) },
+                            onItemEdit = { selectedItem ->
+                                shoppingItemEdit = selectedItem
+                                showShoppingListDialog = true
+                            },
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ShoppingListDialog(
+    viewModel: ShoppingListViewModel,
+    shoppingItemEdit: ShoppingItem? = null,
+    onCancel: () -> Unit
+){
+    var shoppingItemName by remember {
+        mutableStateOf(shoppingItemEdit?.name ?: "")
+    }
+    var shoppingItemDescription by remember {
+        mutableStateOf(shoppingItemEdit?.description ?: "")
+    }
+
+    Dialog(onDismissRequest = {
+        onCancel()
+    }) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(size = 6.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(15.dp)
+            ) {
+                Text(
+                    if (shoppingItemEdit == null) "New Shopping List Item" else "Edit Shopping List Item",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                // Name
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Item name") },
+                    value = shoppingItemName,
+                    onValueChange = { shoppingItemName = it }
+                )
+                // Description
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Item description") },
+                    value = shoppingItemDescription,
+                    onValueChange = { shoppingItemDescription = it }
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = {
+                        if (shoppingItemEdit == null) {
+                            viewModel.addShoppingListItem(
+                                ShoppingItem(
+                                    id = "",
+                                    category = CategoryList.FOOD, // TODO: Add category select option
+                                    estimatedPrice = 4.0f, // TODO: Add pricing (properly)
+                                    name = shoppingItemName,
+                                    description = shoppingItemDescription,
+                                    createDate = Date(System.currentTimeMillis()).toString(),
+                                    updatedDate = Date(System.currentTimeMillis()).toString(),
+                                    isBought = false
+                                )
+                            )
+                        } else {
+                            val editedTodo = shoppingItemEdit.copy(
+                                category = CategoryList.FOOD,
+                                estimatedPrice = 4.0f,
+                                name = shoppingItemName,
+                                updatedDate = Date(System.currentTimeMillis()).toString(),
+                            )
+                            viewModel.updateShoppingListItem(
+                                shoppingItemEdit,
+                                editedTodo
+                            )
+                        }
+                        onCancel()
+                    }) {
+                        Text("Save")
+                    }
+                }
+            }
+        }
+
     }
 }
 
@@ -247,7 +364,8 @@ private fun LogoIcon() {
 @Composable
 fun ShoppingCard(
     shoppingItem: ShoppingItem,
-    onShoppingItemChecked: (ShoppingItem, Boolean) -> Unit,
+    onItemChecked: (ShoppingItem, Boolean) -> Unit,
+    onItemEdit: (ShoppingItem) -> Unit,
     onItemDelete: (ShoppingItem) -> Unit,
 ){
     Card (
@@ -268,7 +386,7 @@ fun ShoppingCard(
             Checkbox(
                 checked = shoppingItem.isBought,
                 onCheckedChange = { checkboxState ->
-                    onShoppingItemChecked(shoppingItem, checkboxState)
+                    onItemChecked(shoppingItem, checkboxState)
                 }
             )
 
@@ -331,6 +449,9 @@ fun ShoppingCard(
                 Icon(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "Edit",
+                    modifier = Modifier.clickable {
+                        onItemEdit(shoppingItem)
+                    },
                     tint = Color.Blue
                 )
             }
