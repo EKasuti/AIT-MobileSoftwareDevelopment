@@ -1,85 +1,45 @@
 package com.example.shoppinglist.ui.screen
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.example.shoppinglist.data.CategoryList
+import androidx.lifecycle.viewModelScope
+import com.example.shoppinglist.data.ShoppingDAO
 import com.example.shoppinglist.data.ShoppingItem
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
-class ShoppingListViewModel: ViewModel() {
-    private var _shoppingList=
-        mutableStateListOf<ShoppingItem>()
+import javax.inject.Inject
 
-    init {
-        _shoppingList.add(
-            ShoppingItem(
-                "0",
-                CategoryList.FOOD,
-                "Apples",
-                "Red apples",
-                4.0F,
-                isBought = false,
-                "2025. 10. 09.",
-                "2025. 10. 09."
-            ),
-        )
-        _shoppingList.add(
-            ShoppingItem(
-                "1",
-                CategoryList.ELECTRONIC,
-                "Phone",
-                "Nothing phone",
-                4.0F,
-                isBought = false,
-                "2025. 10. 09.",
-                "2025. 10. 09."
-            )
-        )
-        _shoppingList.add(
-            ShoppingItem(
-                "2",
-                CategoryList.BOOK,
-                "The boy who harness the wind",
-                "Course book",
-                4.0F,
-                isBought = false,
-                "2025. 10. 09.",
-                "2025. 10. 09."
-            )
-        )
-    }
-
+@HiltViewModel
+class ShoppingListViewModel @Inject constructor(val shoppingDAO: ShoppingDAO) : ViewModel() {
     fun addShoppingListItem(shoppingItem: ShoppingItem) {
-        _shoppingList.add(shoppingItem)
+        viewModelScope.launch{
+            shoppingDAO.insert(shoppingItem)
+        }
     }
 
-    fun updateShoppingListItem(originalShoppingItem: ShoppingItem, newShoppingItem: ShoppingItem) {
-        val index = _shoppingList.indexOf(originalShoppingItem)
-        _shoppingList[index] = newShoppingItem
+    fun updateShoppingListItem(newShoppingItem: ShoppingItem) {
+        viewModelScope.launch {
+            shoppingDAO.update(newShoppingItem)
+        }
     }
-
 
     fun changeShoppingItemState(shoppingItem: ShoppingItem, value: Boolean){
-        val index = _shoppingList.indexOf(shoppingItem)
-
-        val newShoppingItem= shoppingItem.copy(
-            name = shoppingItem.name,
-            description = shoppingItem.description,
-            estimatedPrice = shoppingItem.estimatedPrice,
-            createDate = shoppingItem.createDate,
-            updatedDate = shoppingItem.updatedDate,
-            category = shoppingItem.category,
-            isBought = value,
-        )
-
-        _shoppingList[index] = newShoppingItem
+        val changedTodo = shoppingItem.copy()
+        changedTodo.isBought = value
+        viewModelScope.launch {
+            shoppingDAO.update(shoppingItem)
+        }
     }
 
     fun removeShoppingItem(shoppingItem: ShoppingItem){
-        _shoppingList.remove(shoppingItem)
+        viewModelScope.launch {
+            shoppingDAO.delete(shoppingItem)
+        }
 
     }
 
-    fun getAllShoppingItems():List<ShoppingItem> {
-        return _shoppingList
+    fun getAllShoppingItems(): Flow<List<ShoppingItem>> {
+        return shoppingDAO.getAllShoppingItems()
     }
 }

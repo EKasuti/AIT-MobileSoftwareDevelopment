@@ -43,6 +43,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +58,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglist.R
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
 import java.util.Date
@@ -66,10 +67,12 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen (
-    shoppingListViewModel: ShoppingListViewModel = viewModel()
+    shoppingListViewModel: ShoppingListViewModel = hiltViewModel()
 ) {
     var shoppingItemEdit: ShoppingItem ? by rememberSaveable { mutableStateOf(null) }
     var showShoppingListDialog by rememberSaveable { mutableStateOf(false) }
+
+    var shoppingList = shoppingListViewModel.getAllShoppingItems().collectAsState(emptyList())
 
     Column (modifier = Modifier.fillMaxWidth()) {
         TopAppBar(
@@ -115,7 +118,7 @@ fun ShoppingListScreen (
             )
         }
 
-        if (shoppingListViewModel.getAllShoppingItems().isEmpty()){
+        if (shoppingList.value.isEmpty()){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -160,7 +163,7 @@ fun ShoppingListScreen (
                 Spacer(modifier = Modifier.height(10.dp))
 
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(shoppingListViewModel.getAllShoppingItems()) { shoppingItem ->
+                    items(shoppingList.value) { shoppingItem ->
                         ShoppingCard(
                             shoppingItem,
                             onItemChecked = { shoppingItem, checked ->
@@ -232,7 +235,6 @@ fun ShoppingListDialog(
                         if (shoppingItemEdit == null) {
                             viewModel.addShoppingListItem(
                                 ShoppingItem(
-                                    id = "",
                                     category = CategoryList.FOOD, // TODO: Add category select option
                                     estimatedPrice = 4.0f, // TODO: Add pricing (properly)
                                     name = shoppingItemName,
@@ -250,7 +252,6 @@ fun ShoppingListDialog(
                                 updatedDate = Date(System.currentTimeMillis()).toString(),
                             )
                             viewModel.updateShoppingListItem(
-                                shoppingItemEdit,
                                 editedTodo
                             )
                         }

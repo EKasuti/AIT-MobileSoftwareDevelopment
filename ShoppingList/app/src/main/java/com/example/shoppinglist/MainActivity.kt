@@ -19,7 +19,9 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.shoppinglist.ui.navigation.ShoppingListScreenRoute
 import com.example.shoppinglist.ui.screen.ShoppingListScreen
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

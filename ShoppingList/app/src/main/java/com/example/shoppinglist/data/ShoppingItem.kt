@@ -1,15 +1,20 @@
 package com.example.shoppinglist.data
 import com.example.shoppinglist.R
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.ColumnInfo
+
+@Entity(tableName = "shoppingListTable")
 data class ShoppingItem(
-    val id: String,
-    val category: CategoryList,
-    val name: String,
-    val description: String,
-    val estimatedPrice: Float,
-    val isBought: Boolean,
-    val createDate:String,
-    val updatedDate: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "name") val name:String,
+    @ColumnInfo(name = "description") val description:String,
+    @ColumnInfo(name= "estimatedPrice") val estimatedPrice: Float,
+    @ColumnInfo(name = "category") var category: CategoryList,
+    @ColumnInfo(name = "isBought") var isBought: Boolean,
+    @ColumnInfo(name = "createDate") val createDate:String,
+    @ColumnInfo(name = "updatedDate") val updatedDate:String,
 )
 
 enum class CategoryList {
