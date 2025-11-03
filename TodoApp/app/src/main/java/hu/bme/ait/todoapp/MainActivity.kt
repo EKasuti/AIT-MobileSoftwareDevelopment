@@ -1,7 +1,5 @@
-package com.example.todoapp
+package hu.bme.ait.todoapp
 
-import com.example.todoapp.ui.navigation.SummaryScreenRoute
-import com.example.todoapp.ui.navigation.TodoScreenRoute
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,11 +16,15 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.example.todoapp.ui.screen.TodoScreen
-import com.example.todoapp.ui.theme.TodoAppTheme
-import com.example.todoapp.ui.screen.SummaryScreen
-import com.example.todoapp.ui.screen.SummaryViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import hu.bme.ait.todoapp.ui.navigation.SummaryScreenRoute
+import hu.bme.ait.todoapp.ui.navigation.TodoScreenRoute
+import hu.bme.ait.todoapp.ui.screen.SummaryScreen
+import hu.bme.ait.todoapp.ui.screen.SummaryViewModel
+import hu.bme.ait.todoapp.ui.screen.TodoScreen
+import hu.bme.ait.todoapp.ui.theme.TodoAppTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +33,8 @@ class MainActivity : ComponentActivity() {
             TodoAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavGraph(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier =
+                            Modifier.padding(innerPadding)
                     )
                 }
             }
@@ -56,8 +59,8 @@ fun NavGraph(modifier: Modifier) {
             entry<TodoScreenRoute> {
                 TodoScreen(
                     onSummaryClick = {
-                            allTodo, importantTodo ->
-                        backStack.add(SummaryScreenRoute(
+                        allTodo, importantTodo ->
+                            backStack.add(SummaryScreenRoute(
                             allTodo, importantTodo))
                     }
                 )

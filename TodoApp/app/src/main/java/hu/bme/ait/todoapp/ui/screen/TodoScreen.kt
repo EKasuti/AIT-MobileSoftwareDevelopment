@@ -1,9 +1,8 @@
-package com.example.todoapp.ui.screen
+package hu.bme.ait.todoapp.ui.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.material3.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,14 +25,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.todoapp.data.TodoItem
+import hu.bme.ait.todoapp.data.TodoItem
+
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Info
@@ -46,27 +46,33 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.todoapp.data.TodoPriority
+import androidx.hilt.navigation.compose.hiltViewModel
+import hu.bme.ait.todoapp.data.TodoPriority
+import kotlinx.coroutines.launch
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoScreen(
     onSummaryClick: (Int, Int)->Unit,
-    todoViewModel: TodoViewModel = viewModel()
+    todoViewModel: TodoViewModel = hiltViewModel()
 ) {
     var showTodoDialog by rememberSaveable { mutableStateOf(false) }
     var todoToEdit: TodoItem? by rememberSaveable { mutableStateOf(null) }
 
+    var todoList = todoViewModel.getAllToDoList().collectAsState(emptyList())
+    val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -80,10 +86,11 @@ fun TodoScreen(
             ),
             actions = {
                 IconButton(onClick = {
-                    onSummaryClick(
-                        todoViewModel.getAllTodoNum(),
-                        todoViewModel.getImportantTodoNum()
-                    )
+                    coroutineScope.launch {
+                        val allTodo = todoViewModel.getAllTodoNum()
+                        val importantTodo = todoViewModel.getImportantTodoNum()
+                        onSummaryClick(allTodo, importantTodo)
+                    }
                 }) {
                     Icon(Icons.Filled.Info, null)
                 }
@@ -115,7 +122,7 @@ fun TodoScreen(
 
 
 
-        if (todoViewModel.getAllToDoList().isEmpty()) {
+        if (todoList.value.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -125,7 +132,7 @@ fun TodoScreen(
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(todoViewModel.getAllToDoList()) { todoItem ->
+                items(todoList.value) { todoItem ->
                     TodoCard(
                         todoItem,
                         onTodoDelete = { todoItem -> todoViewModel.removeTodoItem(todoItem) },
@@ -202,7 +209,7 @@ fun TodoCard(
                         )
                     }
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.5f))
+                Spacer(modifier = Modifier.fillMaxSize(0.35f))
                 Checkbox(
                     checked = todoItem.isDone,
                     onCheckedChange = { checkboxState ->
@@ -325,7 +332,6 @@ fun TodoDialog(
                         if (todoToEdit == null) {
                             viewModel.addTodoList(
                                 TodoItem(
-                                    id = "",
                                     title = todoTitle,
                                     description = todoDesc,
                                     createDate = Date(System.currentTimeMillis()).toString(),
@@ -340,7 +346,6 @@ fun TodoDialog(
                                 priority = if (important) TodoPriority.HIGH else TodoPriority.NORMAL
                             )
                             viewModel.updateTodo(
-                                todoToEdit,
                                 editedTodo
                             )
                         }
@@ -354,3 +359,4 @@ fun TodoDialog(
         }
     }
 }
+

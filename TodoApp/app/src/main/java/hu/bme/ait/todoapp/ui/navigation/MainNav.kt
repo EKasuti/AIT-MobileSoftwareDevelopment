@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.navigation
+package hu.bme.ait.todoapp.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

@@ -1,17 +1,18 @@
-package com.example.todoapp.ui.screen
+package hu.bme.ait.todoapp.ui.screen
 
-import com.example.todoapp.ui.navigation.SummaryScreenRoute
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import hu.bme.ait.todoapp.ui.navigation.SummaryScreenRoute
+
 
 class SummaryViewModel(
     summaryScreenRoute: SummaryScreenRoute
 ) : ViewModel() {
-    var allTodo by mutableIntStateOf(0)
-    var importantTodo by mutableIntStateOf(0)
+    var allTodo by mutableStateOf(0)
+    var importantTodo by mutableStateOf(0)
 
     init {
         allTodo = summaryScreenRoute.allTodoNum
