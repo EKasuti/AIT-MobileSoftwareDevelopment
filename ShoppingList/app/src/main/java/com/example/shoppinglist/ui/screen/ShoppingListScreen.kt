@@ -188,12 +188,9 @@ fun ShoppingListDialog(
     shoppingItemEdit: ShoppingItem? = null,
     onCancel: () -> Unit
 ){
-    var shoppingItemName by remember {
-        mutableStateOf(shoppingItemEdit?.name ?: "")
-    }
-    var shoppingItemDescription by remember {
-        mutableStateOf(shoppingItemEdit?.description ?: "")
-    }
+    var shoppingItemName by remember { mutableStateOf(shoppingItemEdit?.name ?: "") }
+    var shoppingItemDescription by remember { mutableStateOf(shoppingItemEdit?.description ?: "") }
+    var shoppingItemPrice by remember { mutableStateOf(shoppingItemEdit?.estimatedPrice?.toString() ?: "0.00") }
 
     Dialog(onDismissRequest = {
         onCancel()
@@ -202,15 +199,17 @@ fun ShoppingListDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            shape = RoundedCornerShape(size = 6.dp)
+            shape = RoundedCornerShape(12.dp)
         ) {
             Column(
-                modifier = Modifier.padding(15.dp)
+                modifier = Modifier.padding(20.dp)
             ) {
                 Text(
                     if (shoppingItemEdit == null) "New Shopping List Item" else "Edit Shopping List Item",
                     style = MaterialTheme.typography.titleMedium
                 )
+
+                Spacer(Modifier.height(12.dp))
 
                 // Name
                 OutlinedTextField(
@@ -219,6 +218,9 @@ fun ShoppingListDialog(
                     value = shoppingItemName,
                     onValueChange = { shoppingItemName = it }
                 )
+
+                Spacer(Modifier.height(10.dp))
+
                 // Description
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -226,6 +228,20 @@ fun ShoppingListDialog(
                     value = shoppingItemDescription,
                     onValueChange = { shoppingItemDescription = it }
                 )
+
+                // Estimated Price
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Estimated Price ($)") },
+                    value = shoppingItemPrice,
+                    onValueChange = { shoppingItemPrice = it },
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -236,7 +252,7 @@ fun ShoppingListDialog(
                             viewModel.addShoppingListItem(
                                 ShoppingItem(
                                     category = CategoryList.FOOD, // TODO: Add category select option
-                                    estimatedPrice = 4.0f, // TODO: Add pricing (properly)
+                                    estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
                                     name = shoppingItemName,
                                     description = shoppingItemDescription,
                                     createDate = Date(System.currentTimeMillis()).toString(),
@@ -247,8 +263,9 @@ fun ShoppingListDialog(
                         } else {
                             val editedTodo = shoppingItemEdit.copy(
                                 category = CategoryList.FOOD,
-                                estimatedPrice = 4.0f,
+                                estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
                                 name = shoppingItemName,
+                                description = shoppingItemDescription,
                                 updatedDate = Date(System.currentTimeMillis()).toString(),
                             )
                             viewModel.updateShoppingListItem(
@@ -257,7 +274,7 @@ fun ShoppingListDialog(
                         }
                         onCancel()
                     }) {
-                        Text("Save")
+                        Text("Add Item")
                     }
                 }
             }
