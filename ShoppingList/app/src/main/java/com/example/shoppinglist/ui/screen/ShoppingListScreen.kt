@@ -8,14 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,13 +26,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,14 +55,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
+import com.example.shoppinglist.ui.components.EmptyState
+import com.example.shoppinglist.ui.components.FilterOptions
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,16 +74,22 @@ fun ShoppingListScreen (
     var showShoppingListDialog by rememberSaveable { mutableStateOf(false) }
 
     var shoppingList = shoppingListViewModel.getAllShoppingItems().collectAsState(emptyList())
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     Column (modifier = Modifier.fillMaxWidth()) {
         TopAppBar(
+            modifier = Modifier.height(64.dp),
+            windowInsets = WindowInsets(0.dp),
             title = {
-                Row {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
                     // TODO: deprecate the image and just use the logo icon
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
                         contentDescription = "Logo Icon",
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(32.dp),
                         tint = colorScheme.onPrimary
                     )
                     Text(stringResource(R.string.papyrus))
@@ -94,11 +101,6 @@ fun ShoppingListScreen (
                 actionIconContentColor = colorScheme.onPrimary,
             ),
             actions = {
-                IconButton(onClick = {
-                    // TODO: Deletes  all items
-                }) {
-                    Icon(Icons.Filled.Delete, null)
-                }
                 IconButton(onClick = {
                     showShoppingListDialog = true
                 }) {
@@ -119,46 +121,18 @@ fun ShoppingListScreen (
         }
 
         if (shoppingList.value.isEmpty()){
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ){
-                Column (
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    // Logo
-                    LogoIcon()
-                    Text(stringResource(R.string.your_list_is_empty))
-                    Text(stringResource(R.string.add_items_to_get_started))
-                    // TODO: Create custom buttons
-                    Button(
-                        onClick = {},
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.primary,
-                            contentColor = colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(stringResource(R.string.add_item))
-                    }
-                }
-            }
+            EmptyState(
+                onAddItemClick = { showShoppingListDialog = true}
+            )
         } else {
             Column {
-                Spacer(modifier = Modifier.height(10.dp))
-                // TODO: Add Filters and maybe search or sorting
-               Card (
-                   colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-                   shape = RoundedCornerShape(12.dp),
-                   modifier = Modifier.padding(5.dp)
-               ){
-                   Row (
-                       modifier = Modifier.padding(5.dp).fillMaxWidth()
-                   ){
-                       SearchBar()
-                       FilterCategories()
-                       SortItems()
-                   }
-               }
+                // TODO: onDelete and onFilter implementation
+                FilterOptions(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    onDeleteClick = {  },
+                    onFilterClick = {  }
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -191,6 +165,8 @@ fun ShoppingListDialog(
     var shoppingItemName by remember { mutableStateOf(shoppingItemEdit?.name ?: "") }
     var shoppingItemDescription by remember { mutableStateOf(shoppingItemEdit?.description ?: "") }
     var shoppingItemPrice by remember { mutableStateOf(shoppingItemEdit?.estimatedPrice?.toString() ?: "0.00") }
+    var shoppingItemCategory by remember { mutableStateOf(shoppingItemEdit?.category ?: CategoryList.FOOD) }
+    var expandedCategory by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = {
         onCancel()
@@ -221,6 +197,11 @@ fun ShoppingListDialog(
 
                 Spacer(Modifier.height(10.dp))
 
+                // Category Dropdown
+                CategoryDropdownList(expandedCategory, shoppingItemCategory)
+
+                Spacer(Modifier.height(10.dp))
+
                 // Description
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -228,6 +209,8 @@ fun ShoppingListDialog(
                     value = shoppingItemDescription,
                     onValueChange = { shoppingItemDescription = it }
                 )
+
+                Spacer(Modifier.height(10.dp))
 
                 // Estimated Price
                 OutlinedTextField(
@@ -284,98 +267,43 @@ fun ShoppingListDialog(
 }
 
 @Composable
-private fun SearchBar() {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.padding(5.dp)
-    ){
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon",
-                modifier = Modifier.size(24.dp),
-            )
-            Text(
-                "Search items...",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-//Categories
-@Composable
-private fun FilterCategories() {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surfaceVariant,
-        ),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.padding(5.dp)
-    ){
-        Row(
+private fun CategoryDropdownList(
+    expandedCategory: Boolean,
+    shoppingItemCategory: CategoryList
+) {
+    var expandedCategory1 = expandedCategory
+    var shoppingItemCategory1 = shoppingItemCategory
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
             modifier = Modifier
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Categories")
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Filter Icon",
-                modifier = Modifier.size(24.dp),
-            )
-
-        }
-    }
-}
-
-//Sort Items
-@Composable
-private fun SortItems() {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surfaceVariant,
-        ),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.padding(5.dp)
-    ){
-        Row(
-            modifier = Modifier
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Sort")
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowUp,
-                contentDescription = "Sort Icon",
-                modifier = Modifier.size(24.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun LogoIcon() {
-    Box(
-        modifier = Modifier
-            .size(80.dp) // total size including border
-            .border(
-                width = 2.dp,
-                color = colorScheme.primary,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ShoppingCart,
-            contentDescription = "Logo Icon",
-            modifier = Modifier.size(40.dp),
-            tint = colorScheme.primary
+                .fillMaxWidth()
+                .clickable { expandedCategory1 = !expandedCategory1 },
+            label = { Text("Category") },
+            value = shoppingItemCategory1.name,
+            onValueChange = { },
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = if (expandedCategory1) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Dropdown"
+                )
+            }
         )
+
+        DropdownMenu(
+            expanded = expandedCategory1,
+            onDismissRequest = { expandedCategory1 = false }
+        ) {
+            CategoryList.entries.forEach { category ->
+                DropdownMenuItem(
+                    text = { Text(category.name) },
+                    onClick = {
+                        shoppingItemCategory1 = category
+                        expandedCategory1 = false
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -385,93 +313,100 @@ fun ShoppingCard(
     onItemChecked: (ShoppingItem, Boolean) -> Unit,
     onItemEdit: (ShoppingItem) -> Unit,
     onItemDelete: (ShoppingItem) -> Unit,
-){
-    Card (
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface,
-        ),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
-        modifier = Modifier.padding(5.dp)
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .fillMaxWidth()
+            .clickable { expanded = !expanded }
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Checkbox
-            Checkbox(
-                checked = shoppingItem.isBought,
-                onCheckedChange = { checkboxState ->
-                    onItemChecked(shoppingItem, checkboxState)
+        Column(Modifier.padding(12.dp)) {
+            // Top row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = shoppingItem.isBought,
+                        onCheckedChange = { checked -> onItemChecked(shoppingItem, checked) }
+                    )
+                    Image(
+                        painter = painterResource(id = shoppingItem.category.getIcon()),
+                        contentDescription = "Item Icon",
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = shoppingItem.name,
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
-            )
 
-            // Category
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .border(
-                        width = 2.dp,
-                        color = colorScheme.primary,
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ){
-                Image(
-                    painter = painterResource(id = shoppingItem.category.getIcon()),
-                    contentDescription = "Category",
-                    modifier = Modifier.size(40.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .border(1.dp, Color.Green, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = shoppingItem.category.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Green
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "$${shoppingItem.estimatedPrice}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Expand or collapse",
+                        tint = colorScheme.onSurface
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.fillMaxSize(0.05f))
+            if (expanded) {
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = shoppingItem.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant
+                    )
 
-            // Title & Description
-            Column {
-                // Title
-                Text(
-                    shoppingItem.name,
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                    style = if (shoppingItem.isBought) {
-                        TextStyle( textDecoration = TextDecoration.LineThrough)
-                    } else {
-                        TextStyle(textDecoration = TextDecoration.None)
+                    Row {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Red,
+                            modifier = Modifier
+                                .clickable { onItemDelete(shoppingItem) }
+                                .padding(4.dp)
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Edit",
+                            tint = Color.Blue,
+                            modifier = Modifier
+                                .clickable { onItemEdit(shoppingItem) }
+                                .padding(4.dp)
+                        )
                     }
-                )
-                // Description
-                Text(
-                    shoppingItem.description,
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    style = if (shoppingItem.isBought) {
-                        TextStyle( textDecoration = TextDecoration.LineThrough)
-                    } else {
-                        TextStyle(textDecoration = TextDecoration.None)
-                    }
-                )
-            }
-
-            // Delete & Edit
-            Spacer(modifier = Modifier.fillMaxSize(0.05f))
-
-            Row {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete",
-                    modifier = Modifier.clickable {
-                        onItemDelete(shoppingItem)
-                    },
-                    tint = Color.Red
-                )
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "Edit",
-                    modifier = Modifier.clickable {
-                        onItemEdit(shoppingItem)
-                    },
-                    tint = Color.Blue
-                )
+                }
             }
         }
     }
