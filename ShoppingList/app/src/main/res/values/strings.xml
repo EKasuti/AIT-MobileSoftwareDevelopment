@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ShoppingList</string>
+    <string name="app_name">Papyrus</string>
     <string name="your_list_is_empty">Your List is Empty</string>
     <string name="add_items_to_get_started">Add items to get started</string>
     <string name="add_item">+ Add Item</string>
