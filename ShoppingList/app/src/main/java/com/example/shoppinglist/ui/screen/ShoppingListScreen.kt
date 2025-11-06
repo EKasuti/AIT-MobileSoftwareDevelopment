@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -315,6 +316,7 @@ fun ShoppingCard(
     onItemDelete: (ShoppingItem) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
@@ -394,7 +396,7 @@ fun ShoppingCard(
                             contentDescription = "Delete",
                             tint = Color.Red,
                             modifier = Modifier
-                                .clickable { onItemDelete(shoppingItem) }
+                                .clickable { showDeleteConfirmation = true }
                                 .padding(4.dp)
                         )
                         Icon(
@@ -407,6 +409,29 @@ fun ShoppingCard(
                         )
                     }
                 }
+            }
+
+            if (showDeleteConfirmation){
+                AlertDialog(
+                    onDismissRequest = {showDeleteConfirmation = false},
+                    title = { Text("Delete Item")},
+                    text = { Text("Are you sure you want to delete \"${shoppingItem.name}\"? This action cannot be undone.") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDeleteConfirmation = false
+                            onItemDelete(shoppingItem)
+                        }) {
+                            Text("Delete", color = Color.Red)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDeleteConfirmation = false}
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
         }
     }
