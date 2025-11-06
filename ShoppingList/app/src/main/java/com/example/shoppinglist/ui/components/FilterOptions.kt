@@ -17,15 +17,22 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun FilterOptions(
@@ -35,6 +42,8 @@ fun FilterOptions(
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDeleteAllConfirmation by remember { mutableStateOf(false) }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
     ) {
@@ -92,13 +101,12 @@ fun FilterOptions(
 
             Spacer(Modifier.width(4.dp))
 
-
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Delete",
                 tint = colorScheme.onSurface,
                 modifier = Modifier
-                    .clickable { onDeleteClick }
+                    .clickable { showDeleteAllConfirmation = true }
                     .padding(4.dp)
             )
 
@@ -109,6 +117,29 @@ fun FilterOptions(
                 modifier = Modifier
                     .clickable { onFilterClick }
                     .padding(4.dp)
+            )
+        }
+
+        if (showDeleteAllConfirmation) {
+            AlertDialog(
+                onDismissRequest = {showDeleteAllConfirmation = false},
+                title = { Text("Delete Item")},
+                text = { Text("Are you sure you want to delete all items? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDeleteAllConfirmation = false
+                        onDeleteClick()
+                    }) {
+                        Text("Delete", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDeleteAllConfirmation = false}
+                    ) {
+                        Text("Cancel")
+                    }
+                }
             )
         }
     }

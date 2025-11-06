@@ -131,7 +131,7 @@ fun ShoppingListScreen (
                 FilterOptions(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    onDeleteClick = {  },
+                    onDeleteClick = { shoppingListViewModel.removeAllShoppingItems() },
                     onFilterClick = {  }
                 )
 

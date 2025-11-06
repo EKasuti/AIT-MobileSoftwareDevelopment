@@ -36,7 +36,12 @@ class ShoppingListViewModel @Inject constructor(val shoppingDAO: ShoppingDAO) : 
         viewModelScope.launch {
             shoppingDAO.delete(shoppingItem)
         }
+    }
 
+    fun removeAllShoppingItems() {
+        viewModelScope.launch {
+            shoppingDAO.deleteAllItems()
+        }
     }
 
     fun getAllShoppingItems(): Flow<List<ShoppingItem>> {
