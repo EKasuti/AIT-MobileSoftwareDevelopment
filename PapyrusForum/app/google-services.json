@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "935089781597",
+    "project_id": "papyrus-27c2f",
+    "storage_bucket": "papyrus-27c2f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:935089781597:android:5a4fec86321fcee587c6b4",
+        "android_client_info": {
+          "package_name": "com.example.papyrusforum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAasi9Wh_kZ-U5bSF5WGd1BDg7sbKkTznY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
