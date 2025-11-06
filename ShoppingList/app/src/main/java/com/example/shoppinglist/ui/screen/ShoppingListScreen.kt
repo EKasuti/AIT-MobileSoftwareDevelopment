@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.lazy.items
@@ -31,15 +30,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -57,14 +52,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglist.R
-import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
 import com.example.shoppinglist.ui.components.EmptyState
 import com.example.shoppinglist.ui.components.FilterOptions
-import java.util.Date
+import com.example.shoppinglist.ui.components.ShoppingListDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,156 +150,6 @@ fun ShoppingListScreen (
     }
 }
 
-@Composable
-fun ShoppingListDialog(
-    viewModel: ShoppingListViewModel,
-    shoppingItemEdit: ShoppingItem? = null,
-    onCancel: () -> Unit
-){
-    var shoppingItemName by remember { mutableStateOf(shoppingItemEdit?.name ?: "") }
-    var shoppingItemDescription by remember { mutableStateOf(shoppingItemEdit?.description ?: "") }
-    var shoppingItemPrice by remember { mutableStateOf(shoppingItemEdit?.estimatedPrice?.toString() ?: "0.00") }
-    var shoppingItemCategory by remember { mutableStateOf(shoppingItemEdit?.category ?: CategoryList.FOOD) }
-    var expandedCategory by remember { mutableStateOf(false) }
-
-    Dialog(onDismissRequest = {
-        onCancel()
-    }) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
-                Text(
-                    if (shoppingItemEdit == null) "New Shopping List Item" else "Edit Shopping List Item",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                // Name
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Item name") },
-                    value = shoppingItemName,
-                    onValueChange = { shoppingItemName = it }
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                // Category Dropdown
-                CategoryDropdownList(expandedCategory, shoppingItemCategory)
-
-                Spacer(Modifier.height(10.dp))
-
-                // Description
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Item description") },
-                    value = shoppingItemDescription,
-                    onValueChange = { shoppingItemDescription = it }
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                // Estimated Price
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Estimated Price ($)") },
-                    value = shoppingItemPrice,
-                    onValueChange = { shoppingItemPrice = it },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = {
-                        if (shoppingItemEdit == null) {
-                            viewModel.addShoppingListItem(
-                                ShoppingItem(
-                                    category = CategoryList.FOOD, // TODO: Add category select option
-                                    estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
-                                    name = shoppingItemName,
-                                    description = shoppingItemDescription,
-                                    createDate = Date(System.currentTimeMillis()).toString(),
-                                    updatedDate = Date(System.currentTimeMillis()).toString(),
-                                    isBought = false
-                                )
-                            )
-                        } else {
-                            val editedTodo = shoppingItemEdit.copy(
-                                category = CategoryList.FOOD,
-                                estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
-                                name = shoppingItemName,
-                                description = shoppingItemDescription,
-                                updatedDate = Date(System.currentTimeMillis()).toString(),
-                            )
-                            viewModel.updateShoppingListItem(
-                                editedTodo
-                            )
-                        }
-                        onCancel()
-                    }) {
-                        Text("Add Item")
-                    }
-                }
-            }
-        }
-
-    }
-}
-
-@Composable
-private fun CategoryDropdownList(
-    expandedCategory: Boolean,
-    shoppingItemCategory: CategoryList
-) {
-    var expandedCategory1 = expandedCategory
-    var shoppingItemCategory1 = shoppingItemCategory
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expandedCategory1 = !expandedCategory1 },
-            label = { Text("Category") },
-            value = shoppingItemCategory1.name,
-            onValueChange = { },
-            readOnly = true,
-            trailingIcon = {
-                Icon(
-                    imageVector = if (expandedCategory1) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Dropdown"
-                )
-            }
-        )
-
-        DropdownMenu(
-            expanded = expandedCategory1,
-            onDismissRequest = { expandedCategory1 = false }
-        ) {
-            CategoryList.entries.forEach { category ->
-                DropdownMenuItem(
-                    text = { Text(category.name) },
-                    onClick = {
-                        shoppingItemCategory1 = category
-                        expandedCategory1 = false
-                    }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun ShoppingCard(
