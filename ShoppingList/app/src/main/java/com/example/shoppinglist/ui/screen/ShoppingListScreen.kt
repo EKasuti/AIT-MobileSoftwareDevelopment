@@ -50,6 +50,9 @@ fun ShoppingListScreen (
     var shoppingList = shoppingListViewModel.getAllShoppingItems().collectAsState(emptyList())
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
+    val filteredList = shoppingList.value.filter { item ->
+        item.name.contains(searchQuery, ignoreCase = true)
+    }
     Column (modifier = Modifier.fillMaxWidth()) {
         TopAppBar(
             modifier = Modifier.height(64.dp),
@@ -110,7 +113,7 @@ fun ShoppingListScreen (
                 Spacer(modifier = Modifier.height(10.dp))
 
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(shoppingList.value) { shoppingItem ->
+                    items(filteredList) { shoppingItem ->
                         ShoppingCard(
                             shoppingItem,
                             onItemChecked = { shoppingItem, checked ->

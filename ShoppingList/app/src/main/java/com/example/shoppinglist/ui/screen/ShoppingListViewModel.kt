@@ -28,7 +28,7 @@ class ShoppingListViewModel @Inject constructor(val shoppingDAO: ShoppingDAO) : 
         val changedTodo = shoppingItem.copy()
         changedTodo.isBought = value
         viewModelScope.launch {
-            shoppingDAO.update(shoppingItem)
+            shoppingDAO.update(changedTodo)
         }
     }
 

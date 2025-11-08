@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.material3.adaptive.navigation3)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.core.splashscreen)
 
     // Room
     implementation(libs.androidx.room.runtime)
