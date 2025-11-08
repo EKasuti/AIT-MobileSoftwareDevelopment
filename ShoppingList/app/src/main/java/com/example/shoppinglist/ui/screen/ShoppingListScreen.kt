@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglist.R
+import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
 import com.example.shoppinglist.ui.components.EmptyState
 import com.example.shoppinglist.ui.components.FilterOptions
@@ -50,9 +51,15 @@ fun ShoppingListScreen (
     var shoppingList = shoppingListViewModel.getAllShoppingItems().collectAsState(emptyList())
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
+    var selectedCategory by rememberSaveable { mutableStateOf<CategoryList?>(null) }
+
+    // Search filter
     val filteredList = shoppingList.value.filter { item ->
-        item.name.contains(searchQuery, ignoreCase = true)
+        val matchesSearch = item.name.contains(searchQuery, ignoreCase = true)
+        val matchesCategory = selectedCategory == null || item.category == selectedCategory
+        matchesSearch && matchesCategory
     }
+
     Column (modifier = Modifier.fillMaxWidth()) {
         TopAppBar(
             modifier = Modifier.height(64.dp),
@@ -102,12 +109,13 @@ fun ShoppingListScreen (
             )
         } else {
             Column {
-                // TODO: onFilter implementation
                 FilterOptions(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     onDeleteClick = { shoppingListViewModel.removeAllShoppingItems() },
-                    onFilterClick = {  }
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = { selectedCategory = it },
+                    
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))

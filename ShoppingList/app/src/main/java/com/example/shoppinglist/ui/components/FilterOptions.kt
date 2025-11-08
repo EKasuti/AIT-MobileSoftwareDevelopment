@@ -1,6 +1,8 @@
 package com.example.shoppinglist.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,18 +33,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.example.shoppinglist.data.CategoryList
 
 @Composable
 fun FilterOptions(
     value: String,
     onValueChange: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onFilterClick: () -> Unit,
+    selectedCategory: CategoryList?,
+    onCategorySelected: (CategoryList?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDeleteAllConfirmation by remember { mutableStateOf(false) }
+    var showFilterDialog by rememberSaveable { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
@@ -115,8 +121,58 @@ fun FilterOptions(
                 contentDescription = "Filter",
                 tint = colorScheme.onSurface,
                 modifier = Modifier
-                    .clickable { onFilterClick }
+                    .clickable { showFilterDialog = true }
                     .padding(4.dp)
+            )
+        }
+
+        if (showFilterDialog){
+            AlertDialog(
+                onDismissRequest = { showFilterDialog = false},
+                title = { Text("Filter by Category")},
+                text = {
+                    Column {
+                        Text(
+                            "All",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onCategorySelected(null)
+                                    showFilterDialog = false
+                                }
+                                .background(
+                                    if (selectedCategory == null)
+                                        colorScheme.primary else Color.Transparent,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(vertical = 8.dp, horizontal = 12.dp),
+                            color = if (selectedCategory == null) Color.White else colorScheme.onSurface
+                        )
+                        CategoryList.entries.forEach { category ->
+                            Text(
+                                text = category.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onCategorySelected(category)
+                                        showFilterDialog = false
+                                    }
+                                    .background(
+                                        if (selectedCategory == category)
+                                            colorScheme.primary else Color.Transparent,
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                                color = if (selectedCategory == category) Color.White else colorScheme.onSurface
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showFilterDialog = false }) {
+                        Text("Close")
+                    }
+                }
             )
         }
 
