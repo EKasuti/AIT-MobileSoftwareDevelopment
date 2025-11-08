@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.shoppinglist.data.CategoryList
 import com.example.shoppinglist.data.ShoppingItem
@@ -28,6 +29,39 @@ fun ShoppingListDialog(
     var shoppingItemPrice by remember { mutableStateOf(shoppingItemEdit?.estimatedPrice?.toString() ?: "0.00") }
     var shoppingItemCategory by remember { mutableStateOf(shoppingItemEdit?.category ?: CategoryList.FOOD) }
     var expandedCategory by remember { mutableStateOf(false) }
+
+
+    // Error states
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var priceError by remember { mutableStateOf<String?>(null) }
+
+    fun validateInput(): Boolean {
+        var valid = true
+
+        // validate name
+        if (shoppingItemName.isBlank()) {
+            nameError = "Please enter a name"
+            valid = false
+        } else {
+            nameError = null
+        }
+
+        // validate price
+        try {
+            val price = shoppingItemPrice.toFloat()
+            if (price < 0) {
+                priceError = "Price cannot be negative"
+                valid = false
+            } else {
+                priceError = null
+            }
+        } catch (_: Exception) {
+            priceError = "Please enter a valid number"
+            valid = false
+        }
+
+        return valid
+    }
 
     Dialog(onDismissRequest = onCancel) {
         Surface(
@@ -49,11 +83,18 @@ fun ShoppingListDialog(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Item name") },
                     value = shoppingItemName,
-                    onValueChange = { shoppingItemName = it }
+                    onValueChange = {
+                        shoppingItemName = it
+                    },
+                    isError = nameError != null
                 )
+                if (nameError != null) {
+                    Text(nameError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
 
                 Spacer(Modifier.height(10.dp))
 
+                // Category (Default : Food)
                 CategoryDropdownList(
                     expanded = expandedCategory,
                     selectedCategory = shoppingItemCategory,
@@ -63,7 +104,7 @@ fun ShoppingListDialog(
 
                 Spacer(Modifier.height(10.dp))
 
-                // Description
+                // Description (optional)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Item description") },
@@ -81,8 +122,12 @@ fun ShoppingListDialog(
                     onValueChange = { shoppingItemPrice = it },
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = KeyboardType.Decimal
-                    )
+                    ),
+                    isError = priceError != null
                 )
+                if (priceError != null) {
+                    Text(priceError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
 
                 Spacer(Modifier.height(16.dp))
 
@@ -94,23 +139,24 @@ fun ShoppingListDialog(
                     TextButton(onClick = onCancel) { Text("Cancel") }
                     Spacer(Modifier.width(8.dp))
                     TextButton(onClick = {
-                        val newItem = ShoppingItem(
-                            category = shoppingItemCategory,
-                            estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
-                            name = shoppingItemName,
-                            description = shoppingItemDescription,
-                            createDate = Date().toString(),
-                            updatedDate = Date().toString(),
-                            isBought = shoppingItemEdit?.isBought ?: false
-                        )
+                        if (validateInput()) {
+                            val newItem = ShoppingItem(
+                                category = shoppingItemCategory,
+                                estimatedPrice = shoppingItemPrice.toFloatOrNull() ?: 0.0f,
+                                name = shoppingItemName,
+                                description = shoppingItemDescription,
+                                createDate = Date().toString(),
+                                updatedDate = Date().toString(),
+                                isBought = shoppingItemEdit?.isBought == true
+                            )
 
-                        if (shoppingItemEdit == null) {
-                            viewModel.addShoppingListItem(newItem)
-                        } else {
-                            viewModel.updateShoppingListItem(newItem.copy(id = shoppingItemEdit.id))
+                            if (shoppingItemEdit == null) {
+                                viewModel.addShoppingListItem(newItem)
+                            } else {
+                                viewModel.updateShoppingListItem(newItem.copy(id = shoppingItemEdit.id))
+                            }
+                            onCancel()
                         }
-
-                        onCancel()
                     }) {
                         Text(if (shoppingItemEdit == null) "Add Item" else "Update Item")
                     }
