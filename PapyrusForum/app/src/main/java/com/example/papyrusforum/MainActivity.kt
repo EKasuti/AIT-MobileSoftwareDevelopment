@@ -7,9 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.papyrusforum.ui.screen.LoginScreen
+import androidx.navigation3.runtime.rememberNavBackStack
+import com.example.papyrusforum.ui.screen.login.LoginScreen
 import com.example.papyrusforum.ui.theme.PapyrusForumTheme
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import com.example.papyrusforum.ui.navigation.LoginScreen
+import com.example.papyrusforum.ui.navigation.MessagesScreen
+import com.example.papyrusforum.ui.navigation.WriteMessageScreen
+import com.example.papyrusforum.ui.screen.messages.MessagesScreen
+import com.example.papyrusforum.ui.screen.writemessage.WriteMessageScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,11 +30,46 @@ class MainActivity : ComponentActivity() {
         setContent {
             PapyrusForumTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(
+                    NavGraph(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+fun NavGraph(modifier: Modifier) {
+    val backStack = rememberNavBackStack(LoginScreen)
+
+    NavDisplay(
+        //modifier = modifier,
+        backStack = backStack,
+        onBack = {backStack.removeLastOrNull()},
+        entryDecorators = listOf(
+            rememberSceneSetupNavEntryDecorator(),
+            rememberSavedStateNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider  = entryProvider {
+            entry<LoginScreen> {
+                LoginScreen(
+                    onLoginSuccess = {
+                        backStack.add(MessagesScreen)
+                    }
+                )
+            }
+            entry<MessagesScreen> {
+                MessagesScreen(
+                    onNewMessageClick = {
+                        backStack.add(WriteMessageScreen)
+                    }
+                )
+            }
+            entry<WriteMessageScreen> {
+                WriteMessageScreen()
+            }
+        }
+    )
 }
