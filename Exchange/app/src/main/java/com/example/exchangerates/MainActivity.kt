@@ -9,6 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import com.example.exchangerates.ui.navigation.MainScreenRoute
+import com.example.exchangerates.ui.navigation.MoneyScreenRoute
+import com.example.exchangerates.ui.navigation.NewsScreenRoute
+import com.example.exchangerates.ui.screen.mainscreen.MainScreen
 import com.example.exchangerates.ui.screen.moneyscreen.MoneyScreen
 import com.example.exchangerates.ui.theme.ExchangeRatesTheme
 import dagger.hilt.android.AndroidEntryPoint
