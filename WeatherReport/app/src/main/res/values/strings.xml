@@ -13,4 +13,6 @@
     <string name="no_cities_yet">No cities yet</string>
     <string name="add_cities_empty_state">Tap the + button to add a city</string>
     <string name="city_list">City List</string>
+    <string name="couldn_t_load_weather">Couldn\'t load weather ❗</string>
+    <string name="you_ll_be_redirected_shortly">You\'ll be redirected shortly...</string>
 </resources>

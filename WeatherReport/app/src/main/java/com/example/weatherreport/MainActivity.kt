@@ -82,7 +82,10 @@ fun NavGraph(modifier: Modifier) {
                 )
             }
             entry<WeatherScreenRoute> { route ->
-                WeatherScreen(city = route.city)
+                WeatherScreen(
+                    city = route.city,
+                    onBack = { backStack.removeLastOrNull() }
+                )
             }
         }
     )

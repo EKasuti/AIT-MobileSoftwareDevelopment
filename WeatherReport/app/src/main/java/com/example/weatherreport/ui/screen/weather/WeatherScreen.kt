@@ -19,16 +19,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.weatherreport.R
 import com.example.weatherreport.data.WeatherData
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 @Composable
 fun WeatherScreen(
     city: String,
+    onBack: () -> Unit,
     viewModel: WeatherViewModel = hiltViewModel()
 ) {
      LaunchedEffect(city) {
@@ -36,7 +41,6 @@ fun WeatherScreen(
      }
     Column {
         when (viewModel.weatherUiState) {
-            WeatherUiState.Error -> Text(text = "Error loading weather data")
             WeatherUiState.Init,
             WeatherUiState.Loading -> {
                 Column(
@@ -50,6 +54,33 @@ fun WeatherScreen(
             is WeatherUiState.Success -> WeatherResultWidget(
                 (viewModel.weatherUiState as WeatherUiState.Success).weatherResults
             )
+            is WeatherUiState.Error -> {
+                LaunchedEffect(Unit) {
+                    delay(1200)
+                    onBack() // we take them back to cities page
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.couldn_t_load_weather),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(R.string.you_ll_be_redirected_shortly),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
