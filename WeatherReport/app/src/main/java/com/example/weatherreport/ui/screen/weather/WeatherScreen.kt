@@ -92,8 +92,9 @@ fun WeatherResultWidget(weatherResults: WeatherData) {
                     text = "${weatherResults.main?.temp?.roundToInt()}°",
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontSize = 96.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                        fontWeight = FontWeight.ExtraBold,
+                    ),
+                    color = Color.White
                 )
 
                 // Weather description with icon
@@ -103,11 +104,13 @@ fun WeatherResultWidget(weatherResults: WeatherData) {
                 ) {
                     Text(
                         text = getWeatherEmoji(weatherResults.weather?.firstOrNull()?.main ?: "Clear"),
-                        fontSize = 24.sp
+                        fontSize = 24.sp,
+                        color = Color.White
                     )
                     Text(
                         text = " ${weatherResults.weather?.firstOrNull()?.description ?: ""}",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
                     )
                 }
 
@@ -116,7 +119,8 @@ fun WeatherResultWidget(weatherResults: WeatherData) {
                 // High / Low temperatures
                 Text(
                     text = "H:${weatherResults.main?.tempMax?.roundToInt()}° L:${weatherResults.main?.tempMin?.roundToInt()}°",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
                 )
 
             }

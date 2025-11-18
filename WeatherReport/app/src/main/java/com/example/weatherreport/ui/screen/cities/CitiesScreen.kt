@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.weatherreport.ui.components.NebulaAppBar
 
@@ -29,11 +30,6 @@ fun CitiesScreen(
                 text = ("City List"),
                 style = MaterialTheme.typography.headlineMedium
             )
-            // TODO: Small description
-            Text(
-                text = ("Small Description"),
-                style = MaterialTheme.typography.bodyMedium
-            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -41,7 +37,10 @@ fun CitiesScreen(
                 onClick = { onWeatherScreen("Budapest,hu") },
                 modifier = Modifier.width(200.dp)
             ) {
-                Text("Weather details")
+                Text(
+                    text ="Weather details",
+                    color = Color.White
+                )
             }
         }
     }

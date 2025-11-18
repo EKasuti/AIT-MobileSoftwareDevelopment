@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,14 +24,18 @@ fun HomeScreen (
     ) {
         Text(
             text = ("HomeScreen"),
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+
         )
 
         Button(
             onClick = { onGetStarted() },
             modifier = Modifier.width(200.dp)
         ) {
-            Text("Get Started")
+            Text(
+                text = "Get Started",
+                color = Color.White
+            )
         }
     }
 }

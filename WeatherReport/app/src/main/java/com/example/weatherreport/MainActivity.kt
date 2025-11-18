@@ -1,6 +1,5 @@
 package com.example.weatherreport
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -40,9 +39,6 @@ class MainActivity : ComponentActivity() {
                     statusBarStyle = SystemBarStyle.dark(
                         MaterialTheme.colorScheme.primary.toArgb(),
                     ),
-                    navigationBarStyle = SystemBarStyle.dark(
-                        Color.TRANSPARENT
-                    )
                 )
 
                 Scaffold(

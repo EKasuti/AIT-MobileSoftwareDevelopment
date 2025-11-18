@@ -16,6 +16,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 
@@ -32,13 +33,16 @@ fun NebulaAppBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxHeight()
             ) {
-                Text(screenName)
+                Text(
+                    text = screenName,
+                    color = Color.White
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorScheme.primary,
             titleContentColor = colorScheme.onPrimary,
-            actionIconContentColor = colorScheme.onPrimary,
+            actionIconContentColor = Color.White,
         ),
         actions = {
             Row(
