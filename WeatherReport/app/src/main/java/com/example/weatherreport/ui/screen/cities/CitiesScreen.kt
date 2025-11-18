@@ -16,7 +16,7 @@ import com.example.weatherreport.ui.components.NebulaAppBar
 
 @Composable
 fun CitiesScreen(
-    onWeatherScreen: () -> Unit
+    onWeatherScreen: (String) -> Unit
 ) {
     Column{
         NebulaAppBar(
@@ -38,7 +38,7 @@ fun CitiesScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
-                onClick = { onWeatherScreen() },
+                onClick = { onWeatherScreen("Budapest,hu") },
                 modifier = Modifier.width(200.dp)
             ) {
                 Text("Weather details")

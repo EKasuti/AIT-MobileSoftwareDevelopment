@@ -11,4 +11,4 @@ data object HomeScreenRoute: NavKey
 data object CitiesScreenRoute: NavKey
 
 @Serializable
-data object WeatherScreenRoute: NavKey
+data class WeatherScreenRoute(val city: String): NavKey
