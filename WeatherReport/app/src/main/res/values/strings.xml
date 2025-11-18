@@ -15,4 +15,6 @@
     <string name="city_list">City List</string>
     <string name="couldn_t_load_weather">Couldn\'t load weather ❗</string>
     <string name="you_ll_be_redirected_shortly">You\'ll be redirected shortly...</string>
+    <string name="nebula_logo">Nebula Logo</string>
+    <string name="splash_screen_tagline">Get to know your weather forecast</string>
 </resources>

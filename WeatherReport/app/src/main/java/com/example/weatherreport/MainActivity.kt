@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -19,13 +24,13 @@ import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.weatherreport.ui.navigation.CitiesScreenRoute
-import com.example.weatherreport.ui.navigation.HomeScreenRoute
 import com.example.weatherreport.ui.navigation.WeatherScreenRoute
 import com.example.weatherreport.ui.screen.cities.CitiesScreen
-import com.example.weatherreport.ui.screen.home.HomeScreen
+import com.example.weatherreport.ui.screen.home.SplashScreen
 import com.example.weatherreport.ui.screen.weather.WeatherScreen
 import com.example.weatherreport.ui.theme.WeatherReportTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -35,19 +40,30 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WeatherReportTheme {
+                var showSplash by remember { mutableStateOf(true) }
+
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.dark(
                         MaterialTheme.colorScheme.primary.toArgb(),
                     ),
                 )
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    NavGraph(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                LaunchedEffect(Unit) {
+                    delay(3000)
+                    showSplash = false
+                }
+
+                if (showSplash) {
+                    SplashScreen()
+                } else {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background
+                    ) { innerPadding ->
+                        NavGraph(
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
@@ -57,7 +73,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NavGraph(modifier: Modifier) {
-    val backStack = rememberNavBackStack(HomeScreenRoute)
+    val backStack = rememberNavBackStack(CitiesScreenRoute)
 
     NavDisplay(
         modifier = modifier,
@@ -69,11 +85,6 @@ fun NavGraph(modifier: Modifier) {
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider  = entryProvider {
-            entry<HomeScreenRoute> {
-                HomeScreen(
-                    onGetStarted = {backStack.add(CitiesScreenRoute)}
-                )
-            }
             entry<CitiesScreenRoute> {
                 CitiesScreen(
                     onWeatherScreen = { city ->
