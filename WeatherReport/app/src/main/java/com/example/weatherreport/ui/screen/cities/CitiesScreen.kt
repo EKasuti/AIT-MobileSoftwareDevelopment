@@ -47,9 +47,14 @@ fun CitiesScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val cityList = cityViewModel.getAllCities().collectAsState(emptyList())
 
-    val filteredList = cityList.value.filter { item ->
-        item.name.contains(searchQuery, ignoreCase = true)
-    }
+    val filteredList = cityList.value
+        .filter { item ->
+            item.name.contains(searchQuery, ignoreCase = true)
+        }
+        .sortedWith(
+            compareByDescending<CityItem> { it.isFavorite }
+                .thenBy { it.name.lowercase() }
+        )
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -80,6 +85,9 @@ fun CitiesScreen(
                                         onWeatherScreen(cityName)
                                     },
                                     onCityDelete = { cityItem -> cityViewModel.removeCity(cityItem) },
+                                    onChangeStatus = { cityItem, checked ->
+                                        cityViewModel.changeIsFavoriteState(cityItem, checked)
+                                    },
                                 )
                             }
                         }
@@ -108,11 +116,14 @@ fun CitiesScreen(
     if (showAddDialog) {
         AddCityDialog(
             onDismiss = { showAddDialog = false },
-            onAddCity = { cityName ->
-                cityViewModel.addCity(CityItem(
-                    name = cityName,
-                    description = ""
-                ))
+            onAddCity = { cityName, cityDescription ->
+                cityViewModel.addCity(
+                    CityItem(
+                        name = cityName,
+                        description = cityDescription,
+                        isFavorite = false
+                    )
+                )
                 showAddDialog = false
             }
         )
@@ -122,9 +133,10 @@ fun CitiesScreen(
 @Composable
 fun AddCityDialog(
     onDismiss: () -> Unit,
-    onAddCity: (String) -> Unit
+    onAddCity: (String, String) -> Unit
 ) {
     var cityName by rememberSaveable { mutableStateOf("") }
+    var cityDescription by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -132,7 +144,7 @@ fun AddCityDialog(
             TextButton(
                 onClick = {
                     if (cityName.isNotBlank()) {
-                        onAddCity(cityName.trim())
+                        onAddCity(cityName.trim(), cityDescription.trim())
                     }
                 }
             ) {
@@ -148,13 +160,23 @@ fun AddCityDialog(
             Text(stringResource(R.string.add_city))
         },
         text = {
-            OutlinedTextField(
-                value = cityName,
-                onValueChange = { cityName = it },
-                label = { Text(stringResource(R.string.city_name)) },
-                singleLine = true
-            )
-        }
+            Column {
+                OutlinedTextField(
+                    value = cityName,
+                    onValueChange = { cityName = it },
+                    label = { Text(stringResource(R.string.city_name)) },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = cityDescription,
+                    onValueChange = { cityDescription = it },
+                    label = { Text(stringResource(R.string.city_description)) },
+                    singleLine = false,
+                    maxLines = 3
+                )
+            }
+        },
     )
 }
 

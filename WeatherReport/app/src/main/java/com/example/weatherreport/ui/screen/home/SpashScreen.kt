@@ -12,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherreport.R
@@ -37,7 +38,7 @@ fun SplashScreen() {
             // App name
             Text(
                 text = (stringResource(R.string.app_name)),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -48,7 +49,7 @@ fun SplashScreen() {
             // TagLine
             Text(
                 text = stringResource(R.string.splash_screen_tagline),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                color = Color.White,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )

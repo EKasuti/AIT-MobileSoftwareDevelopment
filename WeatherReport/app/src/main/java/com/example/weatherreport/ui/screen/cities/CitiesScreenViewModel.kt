@@ -29,4 +29,13 @@ class CityListViewModel @Inject constructor(val cityDAO: CityDAO) : ViewModel() 
             cityDAO.delete(cityItem)
         }
     }
+
+    // change favorite status
+    fun changeIsFavoriteState(cityItem: CityItem, value: Boolean){
+        val changedFavoriteStatus = cityItem.copy()
+        changedFavoriteStatus.isFavorite = value
+        viewModelScope.launch {
+            cityDAO.update(changedFavoriteStatus)
+        }
+    }
 }

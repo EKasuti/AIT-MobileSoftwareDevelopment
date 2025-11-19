@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +37,7 @@ fun CityCard(
     cityItem: CityItem,
     onCityClick: (String) -> Unit,
     onCityDelete: (CityItem) -> Unit,
+    onChangeStatus: (CityItem, Boolean) -> Unit,
 ) {
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
@@ -52,16 +55,32 @@ fun CityCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            Text(
-                text = cityItem.name,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(16.dp)
-            )
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+            ){
+                Icon(
+                    imageVector = if (cityItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                    contentDescription = stringResource(R.string.favorite),
+                    tint = if (cityItem.isFavorite) Color(0xFFFFC107) else Color.Gray,
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .clickable {
+                            onChangeStatus(cityItem, !cityItem.isFavorite)
+                        }
+                        .padding(4.dp)
+                )
+                Text(
+                    text = cityItem.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = stringResource(R.string.delete),
                 tint = Color.Red,
                 modifier = Modifier
+                    .padding(end = 12.dp)
                     .clickable { showDeleteConfirmation = true }
                     .padding(4.dp)
             )

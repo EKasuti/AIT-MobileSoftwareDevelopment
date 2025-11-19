@@ -6,6 +6,7 @@
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
     <string name="city_name">City name</string>
+    <string name="city_description">City description (optional)</string>
     <string name="delete_city">Delete City</string>
     <string name="delete_item_dialog_description">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
     <string name="delete">Delete</string>
@@ -17,4 +18,5 @@
     <string name="you_ll_be_redirected_shortly">You\'ll be redirected shortly...</string>
     <string name="nebula_logo">Nebula Logo</string>
     <string name="splash_screen_tagline">Get to know your weather forecast</string>
+    <string name="favorite">Favorite City</string>
 </resources>

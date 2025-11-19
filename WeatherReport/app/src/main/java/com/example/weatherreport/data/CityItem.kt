@@ -9,4 +9,5 @@ data class CityItem(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") val name:String,
     @ColumnInfo(name = "description") val description:String,
+    @ColumnInfo(name = "isFavorite") var isFavorite: Boolean,
 )

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import kotlin.also
 import kotlin.jvm.java
 
-@Database(entities = [CityItem::class], version = 1, exportSchema = false)
+@Database(entities = [CityItem::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun cityDao(): CityDAO
