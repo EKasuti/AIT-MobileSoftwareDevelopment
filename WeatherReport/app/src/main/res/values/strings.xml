@@ -19,4 +19,6 @@
     <string name="nebula_logo">Nebula Logo</string>
     <string name="splash_screen_tagline">Get to know your weather forecast</string>
     <string name="favorite">Favorite City</string>
+    <string name="info_description">Add cities to your list and tap any city to view its current weather. If an error occurs, the app will redirect you automatically.</string>
+    <string name="ok">OK</string>
 </resources>
