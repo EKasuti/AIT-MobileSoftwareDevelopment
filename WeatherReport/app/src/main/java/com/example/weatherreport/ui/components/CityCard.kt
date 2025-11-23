@@ -2,6 +2,7 @@ package com.example.weatherreport.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,7 +52,7 @@ fun CityCard(
             .clickable { onCityClick(cityItem.name) }
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ){
@@ -69,11 +70,23 @@ fun CityCard(
                         }
                         .padding(4.dp)
                 )
-                Text(
-                    text = cityItem.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
+
+                Column(
+                    modifier = Modifier.padding(start = 12.dp)
+                ){
+                    Text(
+                        text = cityItem.name,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    if (cityItem.description.isNotBlank()) {
+                        Text(
+                            text = cityItem.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             }
             Icon(
                 imageVector = Icons.Filled.Delete,
