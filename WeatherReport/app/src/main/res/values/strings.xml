@@ -21,4 +21,15 @@
     <string name="favorite">Favorite City</string>
     <string name="info_description">Add cities to your list and tap any city to view its current weather. If an error occurs, the app will redirect you automatically.</string>
     <string name="ok">OK</string>
+    <string name="clear">Clear</string>
+    <string name="temperature_details">Temperature Details</string>
+    <string name="wind">Wind</string>
+    <string name="feels_like">Feels Like</string>
+    <string name="humidity">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="speed">Speed</string>
+    <string name="direction">Direction</string>
+    <string name="atmospheric">Atmospheric</string>
+    <string name="visibility">Visibility</string>
+    <string name="cloudiness">Cloudiness</string>
 </resources>

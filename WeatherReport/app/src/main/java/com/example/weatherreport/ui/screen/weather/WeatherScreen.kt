@@ -18,15 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.weatherreport.R
 import com.example.weatherreport.data.WeatherData
+import com.example.weatherreport.ui.screen.weather.components.MainWeatherCard
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
@@ -91,82 +90,73 @@ fun WeatherResultWidget(weatherResults: WeatherData) {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 0.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(
-                topStart = 0.dp,
-                topEnd = 0.dp,
-                bottomStart = 32.dp,
-                bottomEnd = 32.dp
-            )
-        ){
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Location
-                Text(
-                    text = weatherResults.name.toString(),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White
-                )
+        MainWeatherCard(weatherResults)
 
-                // Temperature - Large display
-                Text(
-                    text = "${weatherResults.main?.temp?.roundToInt()}°",
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 96.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                    ),
-                    color = Color.White
-                )
+        Spacer(modifier = Modifier.height(12.dp))
 
-                // Weather description with icon
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = getWeatherEmoji(weatherResults.weather?.firstOrNull()?.main ?: "Clear"),
-                        fontSize = 24.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        text = " ${weatherResults.weather?.firstOrNull()?.description ?: ""}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
-                    )
-                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            // Temperature card
+            InfoCard(title = stringResource(R.string.temperature_details)) {
+                InfoRow(stringResource(R.string.feels_like), "${weatherResults.main?.feelsLike?.roundToInt()}°")
+                InfoRow(stringResource(R.string.humidity), "${weatherResults.main?.humidity}%")
+                InfoRow(stringResource(R.string.pressure), "${weatherResults.main?.pressure} hPa")
+            }
 
-                // High / Low temperatures
-                Text(
-                    text = "H:${weatherResults.main?.tempMax?.roundToInt()}° L:${weatherResults.main?.tempMin?.roundToInt()}°",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
+            Spacer(modifier = Modifier.height(12.dp))
 
+            // Wind Card
+            InfoCard(title = stringResource(R.string.wind)) {
+                InfoRow(stringResource(R.string.speed), "${weatherResults.wind?.speed} m/s")
+                InfoRow(stringResource(R.string.direction), "${weatherResults.wind?.deg}°")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Atmospheric Card
+            InfoCard(title = stringResource(R.string.atmospheric)) {
+                InfoRow(stringResource(R.string.visibility), "${(weatherResults.visibility ?: 0) / 1000} km")
+                InfoRow(stringResource(R.string.cloudiness), "${weatherResults.clouds?.all}%")
             }
         }
     }
 }
 
+@Composable
+fun InfoCard(title: String, content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-fun getWeatherEmoji(weather: String): String {
-    return when (weather.lowercase()) {
-        "clear" -> "☀️"
-        "clouds" -> "☁️"
-        "rain" -> "🌧️"
-        "drizzle" -> "🌦️"
-        "snow" -> "❄️"
-        else -> "🌤️"
+            Spacer(modifier = Modifier.height(12.dp))
+
+            content()
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, fontWeight = FontWeight.SemiBold)
     }
 }
