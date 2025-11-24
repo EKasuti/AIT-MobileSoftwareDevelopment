@@ -35,7 +35,7 @@ class WeatherViewModel @Inject constructor(val weatherAPI: WeatherAPI) : ViewMod
                 val result = weatherAPI.getWeather(
                     city = city,
                     units = "metric",
-                    apiKey = "f3d694bc3e1d44c1ed5a97bd1120e8fe"
+                    apiKey = "e7ab27731023f474cb8c7d74c1c09b12"
                 )
                 Log.d("DEBUG - WeatherViewModel", "Success: $result")
                 weatherUiState = WeatherUiState.Success(result)
